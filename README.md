@@ -42,7 +42,6 @@ It provides full local monitoring and control — no cloud services required.
 4. Add `dashboard.yaml` to your Home Assistant configuration.
 5. Enjoy local smart control of your ventilation system!
 
-*(See `wiring_diagram.png` for detailed wiring.)*
 
 ---
 
