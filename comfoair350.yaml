@@ -1,0 +1,109 @@
+esphome:
+  name: comfoair350
+  friendly_name: ComfoAir 350
+
+esp32:
+  board: esp32dev
+
+# WLAN Konfiguration
+wifi:
+  ssid: "DEIN_WIFI_SSID"
+  password: "DEIN_WIFI_PASSWORT"
+  fast_connect: true
+  power_save_mode: none
+
+# OTA Updates
+ota:
+
+# Logger
+logger:
+  level: DEBUG
+  baud_rate: 0  # Wichtig: deaktiviert UART-Logging
+
+# Webserver (optional)
+web_server:
+  port: 80
+
+# UART Kommunikation
+uart:
+  id: uart_comfoair
+  tx_pin: GPIO17
+  rx_pin: GPIO16
+  baud_rate: 9600
+  stop_bits: 1
+  parity: NONE
+
+# Custom Component
+external_components:
+  - source:
+      type: local
+      path: ./components
+
+custom_component:
+  - lambda: |-
+      auto comfoair = new ComfoAirBridge();
+      return {comfoair};
+
+sensor:
+  - platform: template
+    name: "Zuluft Temperatur"
+    id: comfoair_supply_temp
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+
+  - platform: template
+    name: "Abluft Temperatur"
+    id: comfoair_exhaust_temp
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+
+  - platform: template
+    name: "Außenluft Temperatur"
+    id: comfoair_fresh_temp
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+
+  - platform: template
+    name: "Fortluft Temperatur"
+    id: comfoair_return_temp
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+
+binary_sensor:
+  - platform: template
+    name: "Bypass aktiv"
+    id: comfoair_bypass_active
+
+  - platform: template
+    name: "Filterstatus"
+    id: comfoair_filter_ok
+
+switch:
+  - platform: template
+    name: "Bypass Override"
+    id: comfoair_bypass_override
+    optimistic: true
+    turn_on_action:
+      - lambda: 'ComfoAirBridge::set_bypass(true);'
+    turn_off_action:
+      - lambda: 'ComfoAirBridge::set_bypass(false);'
+
+  - platform: template
+    name: "Lüftung Ein/Aus"
+    id: comfoair_power
+    optimistic: true
+    turn_on_action:
+      - lambda: 'ComfoAirBridge::set_power(true);'
+    turn_off_action:
+      - lambda: 'ComfoAirBridge::set_power(false);'
+
+number:
+  - platform: template
+    name: "Lüfterstufe"
+    id: comfoair_fan_speed
+    optimistic: true
+    min_value: 1
+    max_value: 4
+    step: 1
+    set_action:
+      - lambda: 'ComfoAirBridge::set_fan_speed(x);'
