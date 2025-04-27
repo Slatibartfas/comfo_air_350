@@ -1,0 +1,35 @@
+title: ComfoAir 350 Dashboard
+icon: mdi:fan
+path: comfoair350
+cards:
+  - type: vertical-stack
+    cards:
+      - type: entities
+        title: Temperaturen
+        entities:
+          - entity: sensor.zuluft_temperatur
+            name: Zuluft Temperatur
+          - entity: sensor.abluft_temperatur
+            name: Abluft Temperatur
+          - entity: sensor.aussenluft_temperatur
+            name: Außenluft Temperatur
+          - entity: sensor.fortluft_temperatur
+            name: Fortluft Temperatur
+
+      - type: entities
+        title: Status
+        entities:
+          - entity: binary_sensor.bypass_aktiv
+            name: Bypass aktiv
+          - entity: binary_sensor.filterstatus
+            name: Filter in Ordnung
+
+      - type: entities
+        title: Steuerung
+        entities:
+          - entity: switch.lueftung_ein_aus
+            name: Lüftung Ein/Aus
+          - entity: switch.bypass_override
+            name: Bypass Override
+          - entity: number.luefterstufe
+            name: Lüfterstufe
