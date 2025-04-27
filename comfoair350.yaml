@@ -1,30 +1,41 @@
 esphome:
-  name: comfoair350
-  friendly_name: ComfoAir 350
+  name: zehnder
+  friendly_name: Zehnder
 
 esp32:
   board: esp32dev
 
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret YOUR_API_KEY
+
 # WLAN Konfiguration
 wifi:
-  ssid: "DEIN_WIFI_SSID"
-  password: "DEIN_WIFI_PASSWORT"
+  ssid: YOUR_SSID
+  password: !secret YOUR_PASSWORD
+  use_address: zehnder
   fast_connect: true
   power_save_mode: none
 
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Zehnder Fallback Hotspot"
+    password: "14sX32Tm8k0e"
+
+captive_portal:
+
 # OTA Updates
 ota:
+  - platform: esphome
+    password: !secret YOUR_ESPHOME_PASSWORD
 
 # Logger
 logger:
   level: DEBUG
-  baud_rate: 0  # Wichtig: deaktiviert UART-Logging
+  baud_rate: 0  # Wichtig: deaktiviert ESPHome-Log über UART, damit UART frei ist!
 
-# Webserver (optional)
-web_server:
-  port: 80
-
-# UART Kommunikation
+# Serieller Anschluss zur ComfoAir
 uart:
   id: uart_comfoair
   tx_pin: GPIO17
@@ -33,16 +44,14 @@ uart:
   stop_bits: 1
   parity: NONE
 
-# Custom Component
+# ComfoAir Custom Component
 external_components:
   - source:
       type: local
       path: ./components
 
-custom_component:
-  - lambda: |-
-      auto comfoair = new ComfoAirBridge();
-      return {comfoair};
+comfoair_bridge:
+  id: comfoair_bridge1
 
 sensor:
   - platform: template
@@ -82,28 +91,25 @@ switch:
   - platform: template
     name: "Bypass Override"
     id: comfoair_bypass_override
-    optimistic: true
     turn_on_action:
-      - lambda: 'ComfoAirBridge::set_bypass(true);'
+      - lambda: 'id(comfoair_bridge1).set_bypass(true);'
     turn_off_action:
-      - lambda: 'ComfoAirBridge::set_bypass(false);'
+      - lambda: 'id(comfoair_bridge1).set_bypass(false);'
 
   - platform: template
     name: "Lüftung Ein/Aus"
     id: comfoair_power
-    optimistic: true
     turn_on_action:
-      - lambda: 'ComfoAirBridge::set_power(true);'
+      - lambda: 'id(comfoair_bridge1).set_power(true);'
     turn_off_action:
-      - lambda: 'ComfoAirBridge::set_power(false);'
+      - lambda: 'id(comfoair_bridge1).set_power(false);'
 
 number:
   - platform: template
     name: "Lüfterstufe"
     id: comfoair_fan_speed
-    optimistic: true
     min_value: 1
     max_value: 4
     step: 1
     set_action:
-      - lambda: 'ComfoAirBridge::set_fan_speed(x);'
+      - lambda: 'id(comfoair_bridge1).set_fan_speed(x);'
